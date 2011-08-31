@@ -4,8 +4,7 @@
 
 == Note about Oauth2
 
-Around October 1st 2011 Facebook is transitioning to Oauth2 for authentication.  This changes how the auth cookie is stored if you are using the JavaScript SDK.  This is a fork of http://github.com/pfeiffer/fgraph 
- that takes into account those changes.  Let me know if you run into any problems and I'll do my best to answer them.
+Around October 1st 2011 Facebook is transitioning to Oauth2 for authentication.  This changes how the auth cookie is stored if you are using the JavaScript SDK.  This is a fork of http://github.com/pfeiffer/fgraph that takes into account those changes.  Let me know if you run into any problems and I'll do my best to answer them.
 
 == Description
 
