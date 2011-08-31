@@ -1,3 +1,10 @@
+v0.7.0
+  * Transition to Oauth2 for FB cookie and Javascript SDK (fbs_ -> fbsr_)
+  * OpenSSL sha256 required to validate cookies, disabled on development
+  * Auto request of access_token from 'code' param in the cookie from the JS SDK
+  * Allow blank params for requests (required to get access token w/ Oauth2)
+  * Generalized fgraph_javascript_init_tag options - added debug and channelUrl options
+
 v0.6.0
   * Add status, cookie, and xfbml options to fgraph_javascript_init_tag
 

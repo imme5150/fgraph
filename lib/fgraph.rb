@@ -353,7 +353,7 @@ module FGraph
         options = stringified_options
       
         options.each do |option|
-          next if option[1].blank?
+          next if option[1].nil?
           url << "&" if option_count > 0
           url << "#{option[0]}=#{CGI.escape(option[1].to_s)}"
           option_count += 1

@@ -1,38 +1,19 @@
-= fgraph
+= fgraph for Oauth2
 
-* http://github.com/jugend/fgraph
+* http://github.com/imme5150/fgraph
+
+== Note about Oauth2
+
+Around October 1st 2011 Facebook is transitioning to Oauth2 for authentication.  This changes how the auth cookie is stored if you are using the JavaScript SDK.  This is a fork of http://github.com/pfeiffer/fgraph 
+ that takes into account those changes.  Let me know if you run into any problems and I'll do my best to answer them.
 
 == Description
 
 Facebook Graph Ruby API implementation with Ruby magic (http://graph.facebook.com).
 
-== Installation
-
-  sudo gem install fgraph
-    
-== Rails Plugin Installation
-
-Gem Plugin installation:
-
-  sudo gem install fgraph
-
-  # Edit [RAILS_ROOT]/config/environment.rb
-  config.gem 'fgraph', :version => ">=0.2.0"
-  
-  # Edit [RAILS_ROOT]/Rakefile
-  require 'tasks/fgraph'
-  
-  # Create fgraph.yml config in [RAILS_ROOT]/config
-  rake fgraph:setup
-  
 Normal Plugin Installation:
 
-  script/plugin install http://github.com/jugend/fgraph.git
-  
-=== Facebook Graph Cheat Sheet
-
-  sudo gem install cheat
-  cheat fbgraph
+  script/plugin install http://github.com/imme5150/fgraph.git
 
 === Single object query
 
@@ -167,8 +148,8 @@ Sample codes:
 
   <%= fgraph_javascript_init_tag %>
   <script type="text/javascript">
-    FB.Event.subscribe('auth.sessionChange', function(response) {
-      if (response.session) {
+    FB.Event.subscribe('auth.authResponseChange', function(response) {
+      if (response && response.authResponse) {
         // A user has logged in, and a new cookie has been saved
       } else {
         // The user has logged out, and the cookie has been cleared
@@ -188,8 +169,8 @@ For Asynchronous load, use <tt>window.afterFbAsyncInit</tt>:
 
   <script type="text/javascript">
     window.afterFbAsyncInit = function() {
-      FB.Event.subscribe('auth.sessionChange', function(response) {
-        if (response.session) {
+      FB.Event.subscribe('auth.authResponseChange', function(response) {
+        if (response && response.authResponse) {
           // A user has logged in, and a new cookie has been saved
         } else {
           // The user has logged out, and the cookie has been cleared
@@ -206,7 +187,7 @@ in <tt>ApplicationController</tt>:
 
   rescue_from FGraph::OAuthError do
     # Delete existing invalid cookies
-    cookies.delete "fbs_#{FGraph.config['app_id']}"
+    cookies.delete "fbsr_#{FGraph.config['app_id']}"
     
     # Redirect to referrer page
     redirect_to request.env['REQUEST_PATH']

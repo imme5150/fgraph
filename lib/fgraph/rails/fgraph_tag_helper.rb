@@ -8,12 +8,17 @@ module FGraph
       # Inititalize XFBML Javascript include and initialization script.
       #
       # ==== Options
-      # * <tt>app_id</tt> - overrride Fgraph.config['app_id'] value.
       # * <tt>async</tt> - asynchronous javascript include & initialization.
       #   for other Facebook JS initialization codes please wrap under:
-      # * <tt>status</tt> - default: false, will check login status, and auto-login user if they are connected
+      # * <tt>appId</tt> - overrride Fgraph.config['app_id'] value.
+      # * <tt>status</tt> - default: true, will check login status, and auto-login user if they are connected
       # * <tt>cookie</tt> - default: true, auto set cookies
       # * <tt>xfbml</tt> - default: true, auto parse xfbml tags
+      # * <tt>oauth</tt> - default: true, use Oauth2
+      # * <tt>debug</tt> - default: false, use debug JS source from Facebook if true
+      # * <tt>channelUrl</tt> - default: 'http://' + location.host + '/fb_channel.htm' - set to false to disable or set it to a full path to change the default
+      # Other options will be added to the init call.  See the FB docs for more options:
+      # http://developers.facebook.com/docs/reference/javascript/FB.init/
       # 
       # If async is set to true, the callback function is window.afterFbAsyncInit, e.g.
       #   window.afterFbAsyncInit = function() {
@@ -21,18 +26,31 @@ module FGraph
       #   }
       #
       def fgraph_javascript_init_tag(options={})
-        options = { :app_id => FGraph.config['app_id'], 
+        async = options.delete(:async)
+        channelUrl = options.delete(:channelUrl)
+        src = options.delete(:debug) ? 'static.ak.fbcdn.net/connect/en_US/core.debug.js' : 'connect.facebook.net/en_US/all.js'
+        options = { :appId => FGraph.config['app_id'], 
           :status => true,
           :cookie => true,
+          :oauth => true,
           :xfbml => true
         }.merge(options || {})
         
-        fb_init = "FB.init({appId: '#{options[:app_id]}', status: #{options[:status]}, cookie: #{options[:cookie]}, xfbml: #{options[:xfbml]}});"
+        if channelUrl
+          channelUrlstring = channelUrl
+        elsif channelUrl == false
+          channelUrlstring = ''
+        else # default if not specified
+          channelUrlstring = ", channelUrl: 'http://' + location.host + '/fb_channel.htm'"
+        end
+        # chop off the trailing '}', add in the channelUrlstring and close it with out own '}'
+        fb_init = "FB.init(#{options.to_json[0..-2]}#{channelUrlstring}});"
         
-        if options[:async]
+        if async
           %{
             <div id="fb-root"></div>
             <script>
+             try {
               window.fbAsyncInit = function() {
                 #{fb_init}
                 
@@ -43,9 +61,13 @@ module FGraph
               (function() {
                 var e = document.createElement('script'); e.async = true;
                 e.src = document.location.protocol +
-                  '//connect.facebook.net/en_US/all.js';
+                  '//#{src}';
                 document.getElementById('fb-root').appendChild(e);
               }());
+             } catch(e) {
+               if(u && u.log_error){u.log_error(e.name, 'FB.init - ' + e.message);}
+               alert("Oops, this browser is having trouble connecting to Facebook, please try using a different browser.");
+             }
             </script>
           }
         else
